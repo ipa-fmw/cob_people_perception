@@ -6,17 +6,14 @@ compiler:
   - gcc
 env:
   global:
+    - CI_ROS_DISTRO="indigo"
     - CATKIN_WS=~/catkin_ws
     - CATKIN_WS_SRC=${CATKIN_WS}/src
     - CATKIN_WS_UNDERLAY=~/catkin_ws_underlay
     - CATKIN_WS_UNDERLAY_SRC=${CATKIN_WS_UNDERLAY}/src
-    - CI_ROS_DISTRO="indigo"
   matrix:
     - DEFAULT_ROSINSTALL=""
     - DEFAULT_ROSINSTALL=$TRAVIS_BUILD_DIR/.travis.rosinstall
-    - DEFAULT_ROSINSTALL="https://raw.githubusercontent.com/ipa320/setup/master/repositories/cob_$CI_ROS_DISTRO_bringup.rosinstall"
-#    - CI_ROS_DISTRO="indigo"
-#    - CI_ROS_DISTRO="jade"
 install:
   - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
@@ -30,16 +27,16 @@ script:
   - source /opt/ros/$CI_ROS_DISTRO/setup.bash
   - mkdir -p $CATKIN_WS_UNDERLAY_SRC
   - cd $CATKIN_WS_UNDERLAY
-  - wstool init src $DEFAULT_ROSINSTALL
+  - wstool init -j10 src $DEFAULT_ROSINSTALL
   - ls $CATKIN_WS_UNDERLAY_SRC
-#  - rosdep install -q --from-paths src -i -y > /dev/null
-#  - catkin_make -DCMAKE_BUILD_TYPE=Release install > /dev/null
-#  - source $CATKIN_WS_UNDERLAY/install/setup.bash
-#  - mkdir -p $CATKIN_WS_SRC
-#  - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
-#  - cd $CATKIN_WS_SRC
-#  - catkin_init_workspace
-#  - cd $CATKIN_WS
-#  - catkin_make -DCMAKE_BUILD_TYPE=Release
-#  - catkin_make run_tests -j1
-#  - catkin_test_results --verbose
+  - rosdep install -q --from-paths src -i -y > /dev/null
+  - catkin_make -DCMAKE_BUILD_TYPE=Release install > /dev/null
+  - source $CATKIN_WS_UNDERLAY/install/setup.bash
+  - mkdir -p $CATKIN_WS_SRC
+  - ln -s $TRAVIS_BUILD_DIR $CATKIN_WS_SRC
+  - cd $CATKIN_WS_SRC
+  - catkin_init_workspace
+  - cd $CATKIN_WS
+  - catkin_make -DCMAKE_BUILD_TYPE=Release
+  - catkin_make run_tests -j1
+  - catkin_test_results --verbose
